@@ -175,42 +175,42 @@ class Autos private constructor() {
                 shootSpeakerCommand(intake, shooter)
 
             )
-        // the Ideal is we test this first
-        // the rings param asks for an array of bools based on which rings you are picking up
-        // the array [True, False, True] will pick up ring A then C and not B
-        // location should work in conjunction with goToSpeaker
-        fun collectStartingRingsAndShoot(drive: SwerveDriveBase, intake: IntakeSubsytem, shooter: ShooterSubsytem, location: Int, rings:Array): Command {
-            val sequence:SequentialCommandGroup = SequentialCommandGroup()
+    // the Ideal is we test this first
+    // the rings param asks for an array of bools based on which rings you are picking up
+    // the array [True, False, True] will pick up ring A then C and not B
+    // location should work in conjunction with goToSpeaker
+    fun collectStartingRingsAndShoot(drive: SwerveDriveBase, intake: IntakeSubsytem, shooter: ShooterSubsytem, location: Int, rings:Array): Command {
+        val sequence:SequentialCommandGroup = SequentialCommandGroup()
+        sequence.add(goToSpeakerCommand(drive))
+        sequence.add(shootSpeakerCommand(intake, shooter))
+        // the ring right along the middle
+        if (rings[0]) {
+            sequence.add(goto(drive, Pose2d(14.127, 4.105656, 180.0.rotation2dFromDeg(), Pose2d(2.413, 4.105656, 0.0.rotation2dFromDeg()))))
+            sequence.add(intakeAndUpCommand(intake))
             sequence.add(goToSpeakerCommand(drive))
             sequence.add(shootSpeakerCommand(intake, shooter))
-            // the ring right along the middle
-            if (rings[0]) {
-                sequence.add(goto(drive, Pose2d(14.127, 4.105656, 180.0.rotation2dFromDeg(), Pose2d(2.413, 4.105656, 0.0.rotation2dFromDeg()))))
-                sequence.add(intakeAndUpCommand(intake))
-                sequence.add(goToSpeakerCommand(drive))
-                sequence.add(shootSpeakerCommand(intake, shooter))
-            }
-            // ring above the first ring
-            if (rings[1]) {
-                sequence.add(goto(drive, Pose2d(14.127, 5.553456, 180.0.rotation2dFromDeg(), Pose2d(2.413, 5.553456, 0.0.rotation2dFromDeg()))))
-                sequence.add(intakeAndUpCommand(intake))
-                sequence.add(goToSpeakerCommand(drive))
-                sequence.add(shootSpeakerCommand(intake, shooter))
-            }
-            // ring above the second ring
-            if (rings[2]) {
-                // I kept the equations here in case we need to adjust for whatever reason the 0.1778 is half the width of the ring in meters, I havent adjusted for how far away from the ring we have to be
-                // Red Equation : Center of Ring + half the ring's size + a foot (for intake) Blue Equation : Center of Ring + half the ring's size + a foot (intake)
-                sequence.add(goto(drive, Pose2d(13.6444 + 0.1778 + 0.3048, 7.001256, 180.0.rotation2dFromDeg(), Pose2d(2.8956 - 0.1778 - 0.3048, 7.001256, 0.0.rotation2dFromDeg()))))
-                sequence.add(intakeAndUpCommand(intake))
-                sequence.add(goToSpeakerCommand(drive))
-                sequence.add(shootSpeakerCommand(intake, shooter))
-            }
-            // will go to the bottom ring if Red and the top ring if Blue
-            sequence.add(goto(drive, Pose2d(8.2927  + 0.1778 + 0.3048, 0.752856, 180.0.rotation2dFromDeg()), Pose2d(8.2927  - 0.1778 - 0.3048, 7.457144, 0.0.rotation2dFromDeg())))
-            return sequence
         }
-
+        // ring above the first ring
+        if (rings[1]) {
+            sequence.add(goto(drive, Pose2d(14.127, 5.553456, 180.0.rotation2dFromDeg(), Pose2d(2.413, 5.553456, 0.0.rotation2dFromDeg()))))
+            sequence.add(intakeAndUpCommand(intake))
+            sequence.add(goToSpeakerCommand(drive))
+            sequence.add(shootSpeakerCommand(intake, shooter))
+        }
+        // ring above the second ring
+        if (rings[2]) {
+            // I kept the equations here in case we need to adjust for whatever reason the 0.1778 is half the width of the ring in meters, I havent adjusted for how far away from the ring we have to be
+            // Red Equation : Center of Ring + half the ring's size + a foot (for intake) Blue Equation : Center of Ring + half the ring's size + a foot (intake)
+            sequence.add(goto(drive, Pose2d(13.6444 + 0.1778 + 0.3048, 7.001256, 180.0.rotation2dFromDeg(), Pose2d(2.8956 - 0.1778 - 0.3048, 7.001256, 0.0.rotation2dFromDeg()))))
+            sequence.add(intakeAndUpCommand(intake))
+            sequence.add(goToSpeakerCommand(drive))
+            sequence.add(shootSpeakerCommand(intake, shooter))
+        }
+        // will go to the bottom ring if Red and the top ring if Blue
+        sequence.add(goto(drive, Pose2d(8.2927  + 0.1778 + 0.3048, 0.752856, 180.0.rotation2dFromDeg()), Pose2d(8.2927  - 0.1778 - 0.3048, 7.457144, 0.0.rotation2dFromDeg())))
+        return sequence
+    }
+    // Awesome Change
     fun emergencyStopCommand(shooter: ShooterSubsystem, intake: IntakeSubsystem): Command =
             SequentialCommandGroup(
                 shooter.stopCommand(),
