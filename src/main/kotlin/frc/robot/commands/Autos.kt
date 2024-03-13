@@ -50,6 +50,7 @@ class Autos private constructor() {
         fun goToSpeakerCommand(drive: SwerveDriveBase, location: Int?): Command {
             var location = location
             if (location == null || location > 3 || location < 1) {
+                
                 location = 1
             }
             // location maps to one of three points on the subwoofer
