@@ -1,5 +1,5 @@
 @file:JvmName("Main") 
-package frc.robot
+package frc
 
 import edu.wpi.first.wpilibj.RobotBase
 

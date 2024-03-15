@@ -1,8 +1,7 @@
-package frc.robot.subsystems
+package frc.subsystems
 
-import com.revrobotics.*
 import edu.wpi.first.wpilibj2.command.*
-import frc.lib.utils.*
+import frc.utils.Motor
 
 class ShooterSubsystem: SubsystemBase() {
     val leftFlywheelMotor = Motor(11)

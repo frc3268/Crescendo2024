@@ -1,23 +1,15 @@
-package frc.robot.subsystems
+package frc.subsystems
 
 import com.revrobotics.*
 import edu.wpi.first.wpilibj2.command.*
-import frc.lib.utils.*
+import frc.utils.Motor
 
 class LeftClimberSubsystem: SubsystemBase(){
     val motor = Motor(14)
     val encoder: RelativeEncoder = motor.encoder
-
-    /* CONSTANTS */
-    private val metersPerRotation: Double = 0.0
-    private val minPositionMeters: Double = 0.0
-    private val maxPositionMeters: Double = 0.34
     
     init {
         motor.inverted = true
-        // TODO test if this is needed
-        //rightEncoder.inverted = true
-        
         encoder.positionConversionFactor = 1.0
         encoder.position = 0.0
     }
@@ -27,30 +19,29 @@ class LeftClimberSubsystem: SubsystemBase(){
      * TODO using these functions rotate the motors on the arms accordingly while accounting for min and max heights
      */
 
-    fun down(): Command =
+    fun down() =
         run { motor.set(-0.7) }
             .until { encoder.position < 0.1 }
             .andThen(runOnce { motor.stopMotor() })
 
-    fun up(): Command =
+    fun up() =
         run { motor.set(0.9) }
             .until { encoder.position > 0.9 }
             .andThen(runOnce { motor.stopMotor() })
 
-    fun reset(): Command =
+    fun reset() =
         runOnce { encoder.position = 0.0 }
 
-    fun testup():Command =
-            runOnce { motor.set(0.2) }
+    fun testup() =
+        runOnce { motor.set(0.2) }
 
-    fun testdown():Command =
-            runOnce { motor.set(-0.2) }
+    fun testdown() =
+        runOnce { motor.set(-0.2) }
 
-    fun stop(): Command =
+    fun stop() =
         runOnce { motor.set(0.0) }
 
     override fun periodic() {
-        System.out.println("Left climber: " + encoder.position)
         if(encoder.position !in -0.1..1.1){
             stop().schedule()
         }

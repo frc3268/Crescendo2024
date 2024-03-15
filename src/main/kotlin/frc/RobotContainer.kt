@@ -1,4 +1,4 @@
-package frc.robot
+package frc
 
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.wpilibj.shuffleboard.*
@@ -6,9 +6,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
-import frc.lib.basics.SwerveDriveBase
-import frc.robot.commands.*
-import frc.robot.subsystems.*
+import frc.robot.*
+import frc.subsystems.IntakeSubsystem
+import frc.subsystems.LeftClimberSubsystem
+import frc.subsystems.RightClimberSubsystem
+import frc.subsystems.ShooterSubsystem
+import frc.subsystems.swerve.SwerveDriveBase
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -17,6 +20,10 @@ import frc.robot.subsystems.*
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 class RobotContainer {
+    companion object {
+        const val kDriverControllerPort = 0
+    }
+
     private val GeneralTab = Shuffleboard.getTab("General")
     private val TroubleshootingTab = Shuffleboard.getTab("Troubleshooting")
 
@@ -26,11 +33,11 @@ class RobotContainer {
     val leftClimberSubsystem = LeftClimberSubsystem()
     val rightClimberSubsystem = RightClimberSubsystem()
 
-    private val driverController = CommandXboxController(Constants.OperatorConstants.kDriverControllerPort)
+    private val driverController = CommandXboxController(kDriverControllerPort)
 
     val autochooser = SendableChooser<Command>()
 
-    val teleopCommand = SwerveJoystickDrive(
+    val teleopCommand = SwerveJoystickDriveCommand(
         driveSubsystem,
         { driverController.getRawAxis(1) },
         { -driverController.getRawAxis(0) },
@@ -148,7 +155,7 @@ class RobotContainer {
         /*
         A runs outake
          */
-        driverController.a().onTrue(intakeSubsystem.runOnceOuttake())
+        driverController.a().onTrue(intakeSubsystem.runOnceOuttakeCommand())
         driverController.a().onFalse(intakeSubsystem.stopIntake())
 
         /*

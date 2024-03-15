@@ -1,4 +1,4 @@
-package frc.lib.utils
+package frc.subsystems
 
 import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.*
@@ -25,17 +25,12 @@ class Camera(name:String, path:String): SubsystemBase(){
                     PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     limelight,
                     Transform3d(
-                            Translation3d(
-                                    Units.inchesToMeters(0.0),
-                                    Units.inchesToMeters(12.0),
-                                            Units.inchesToMeters(15.0),
-                            ),
-                            Rotation3d(
-                                    0.0,
-                                    45.0,
-                                    0.0
-
-                            )
+                        Translation3d(
+                            Units.inchesToMeters(0.0),
+                            Units.inchesToMeters(12.0),
+                            Units.inchesToMeters(15.0),
+                        ),
+                        Rotation3d(0.0, 45.0, 0.0)
                     )
                 )
         } catch (e: IOException) {
