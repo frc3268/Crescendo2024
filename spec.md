@@ -6,7 +6,7 @@ Naming:
 - Classes: CamelCase
 
 Structure:
-- Basics: Holds two drivebase subsystems, one for differential drive and one for swerve drive. Extend either of these to add custom functionality or declare your drivebase as an instance.
+- Basics: Holds two drivebase crescendo.subsystems, one for differential drive and one for swerve drive. Extend either of these to add custom functionality or declare your drivebase as an instance.
 - Constants: Holds Constants files for both drivebases, as well as other things. Each drivebase has a constants file, and all other constants are stored in LibConsts file
 - Utils: Hold useful classes such as camera wrappers, config methods for hardware, math and simulation tools. Usually should be left alone when using ValhallaLib
 

@@ -1,33 +1,33 @@
-package frc
+package crescendo
 
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 
 /**
+ * This class contains everything about the robot. Robot logic and structure should be defined and changed in
+ * [RobotLogic] since we don't want to initialize anything until the robot is physically ready. [robotLogic] is
+ * initialized in [robotInit].
+ *
  * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
- * project.
+ * each mode, as described in the TimedRobot documentation.
  */
 class Robot: TimedRobot() {
     private var autonomousCommand: Command? = null
-    private var robotContainer: RobotContainer? = null
+    private var robotLogic: RobotLogic? = null
 
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
      */
     override fun robotInit() {
-        // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-        // autonomous chooser on the dashboard.
-        robotContainer = RobotContainer()
+        // Perform all button bindings and put the autonomous mode chooser on the dashboard.
+        robotLogic = RobotLogic()
     }
 
     /**
      * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
      * that you want ran during disabled, autonomous, teleoperated and test.
-     *
      *
      * This runs after the mode specific periodic functions, but before LiveWindow and
      * SmartDashboard integrated updating.
@@ -46,13 +46,14 @@ class Robot: TimedRobot() {
     /** This function is called periodically when disabled.  */
     override fun disabledPeriodic() {}
 
-    /** This autonomous runs the autonomous command selected by your [RobotContainer] class.  */
+    /** This autonomous runs the autonomous command selected by your [RobotLogic] class.  */
     override fun autonomousInit() {
-        autonomousCommand = robotContainer?.autochooser?.selected
-        robotContainer?.driveSubsystem?.zeroPoseToCameraPosition()
+        // TODO is this needed? -- Weiju
+        autonomousCommand = robotLogic?.autoChooser?.selected
+        robotLogic?.swerveSubsystem?.zeroPoseToCameraPosition()
         /*
         TODO: this may need to be deleted
-        robotContainer?.driveSubsystem?.zeroPoseToFieldPositionCommand(
+        robotLogic?.swerveSubsystem?.zeroPoseToFieldPositionCommand(
             SwerveDriveConstants.startCoordinates
                 [DriverStation.getAlliance().get()]!!
                 [DriverStation.getLocation().asInt - 1]
@@ -61,7 +62,6 @@ class Robot: TimedRobot() {
 
 
         // Schedule the autonomous command (example)
-        // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before scheduling it
         autonomousCommand?.schedule()
     }
 
@@ -74,16 +74,12 @@ class Robot: TimedRobot() {
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
-        // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before cancelling it
         autonomousCommand?.cancel()
-        robotContainer?.teleopCommand?.schedule()
+        robotLogic?.teleopCommand?.schedule()
     }
 
     /** This function is called periodically during operator control.  */
-    override fun teleopPeriodic() {
-
-
-    }
+    override fun teleopPeriodic() {}
 
     /** This function is called once when test mode is enabled.  */
     override fun testInit() {

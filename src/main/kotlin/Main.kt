@@ -1,5 +1,4 @@
-@file:JvmName("Main") 
-package frc
+@file:JvmName("Main")
 
 import edu.wpi.first.wpilibj.RobotBase
 
@@ -11,12 +10,9 @@ import edu.wpi.first.wpilibj.RobotBase
 object Main {
     /**
      * Main initialization function. Do not perform any initialization here.
-     *
-     *
-     * If you change your main robot class, change the parameter type.
      */
     @JvmStatic
     fun main(args: Array<String>) {
-        RobotBase.startRobot { Robot() }
+        RobotBase.startRobot { crescendo.Robot() }
     }
 }

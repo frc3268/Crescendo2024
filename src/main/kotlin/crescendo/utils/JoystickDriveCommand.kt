@@ -1,13 +1,15 @@
-package frc.robot
+package crescendo.utils
 
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.math.MathUtil
-import frc.Constants
-import frc.subsystems.swerve.SwerveDriveBase
+import crescendo.subsystems.swerve.SwerveSubsystem
 import java.util.function.*
 
-class SwerveJoystickDriveCommand(
-    private val drive: SwerveDriveBase,
+/**
+ * Runs during teleop. Listens for joystick input and executes it until the command is stopped.
+ */
+class JoystickDriveCommand(
+    private val drive: SwerveSubsystem,
     private val translationX: DoubleSupplier,
     private val translationY: DoubleSupplier,
     private val rotation: DoubleSupplier,
@@ -18,7 +20,6 @@ class SwerveJoystickDriveCommand(
     }
 
     init {
-        // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(drive)
     }
 
@@ -33,7 +34,14 @@ class SwerveJoystickDriveCommand(
         val turnSpeed: Double = MathUtil.applyDeadband(rotation.asDouble, STICK_DEADBAND) * Constants.MAX_ANGULAR_VELOCITY_DEGREES_PER_SECOND
 
         /* Drive */
-        drive.setModuleStates(drive.constructModuleStatesFromChassisSpeeds(xSpeed,ySpeed,turnSpeed,fieldOriented.asBoolean))
+        drive.setModuleStates(
+            drive.constructModuleStatesFromChassisSpeeds(
+                xSpeed,
+                ySpeed,
+                turnSpeed,
+                fieldOriented.asBoolean
+            )
+        )
     }
 
     // Called once the command ends or is interrupted.
@@ -42,7 +50,5 @@ class SwerveJoystickDriveCommand(
     }
 
     // Returns true when the command should end.
-    override fun isFinished(): Boolean {
-        return false
-    }
+    override fun isFinished() = false
 }

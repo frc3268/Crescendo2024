@@ -1,4 +1,4 @@
-package frc.subsystems.swerve
+package crescendo.subsystems.swerve
 
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.math.VecBuilder
@@ -6,20 +6,28 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.*
 import edu.wpi.first.math.kinematics.*
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.shuffleboard.*
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.*
-import frc.Constants
-import frc.subsystems.Camera
+import crescendo.utils.*
+import crescendo.subsystems.CameraSubsystem
 import org.photonvision.EstimatedRobotPose
 import java.util.*
 import kotlin.math.*
 
-class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
+/**
+ * Represents the entire swerve system, all four swerve modules together as well as the gyro, camera, and anything else
+ * needed to drive the robot.
+ */
+class SwerveSubsystem(startingPose: Pose2d) : SubsystemBase() {
     companion object {
+        val TRACK_WIDTH_METERS = Units.inchesToMeters(24.0)
+        val WHEEL_BASE_METERS = Units.inchesToMeters(24.0)
+
         val xPIDController = PIDController(1.5,1.0,0.8)
         val yPIDController = PIDController(1.5,1.0,0.8)
         val thetaPIDController = PIDController(2.0,0.3,0.0)
@@ -28,17 +36,15 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
         //assuming that 0,0 is the center of the robot, and (+,+) means (left, front)
         val kinematics =
             SwerveDriveKinematics(
-                Translation2d(-Constants.WHEEL_BASE_METERS / 2.0, -Constants.TRACK_WIDTH_METERS / 2.0),
-                Translation2d(-Constants.WHEEL_BASE_METERS / 2.0, Constants.TRACK_WIDTH_METERS / 2.0),
-                Translation2d(Constants.WHEEL_BASE_METERS / 2.0, Constants.TRACK_WIDTH_METERS / 2.0),
-                Translation2d(Constants.WHEEL_BASE_METERS / 2.0, -Constants.TRACK_WIDTH_METERS / 2.0),
+                Translation2d(-WHEEL_BASE_METERS / 2.0, -TRACK_WIDTH_METERS / 2.0),
+                Translation2d(-WHEEL_BASE_METERS / 2.0, TRACK_WIDTH_METERS / 2.0),
+                Translation2d(WHEEL_BASE_METERS / 2.0, TRACK_WIDTH_METERS / 2.0),
+                Translation2d(WHEEL_BASE_METERS / 2.0, -TRACK_WIDTH_METERS / 2.0),
             )
     }
 
-    val field = Field2d()
-    private val ShuffleboardTab = Shuffleboard.getTab("Drivetrain")
-
     var poseEstimator: SwerveDrivePoseEstimator
+    private val gyro = AHRS(SPI.Port.kMXP)
     private val modules =
         listOf(
             SwerveModule(1, Rotation2d.fromDegrees(-253.36), 1, 2, 0, false, false, PIDController(0.012, 0.003, 0.0003)),
@@ -46,21 +52,20 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
             SwerveModule(3, Rotation2d.fromDegrees(-182.53), 5, 6, 2, false, false, PIDController(0.012, 0.003, 0.0003)),
             SwerveModule(4, Rotation2d.fromDegrees(-115.76), 7, 8, 3, false, false, PIDController(0.012, 0.003, 0.0003))
         )
-    private val gyro = AHRS(SPI.Port.kMXP)
+    private var yawOffset = 0.0
+    private val camera = CameraSubsystem("hawkeye", "")
 
-    private var joystickControlledEntry: GenericEntry = ShuffleboardTab
+    private val shuffleboardTab = Shuffleboard.getTab("Drivetrain")
+    private val field = Field2d()
+    private var poseXEntry = shuffleboardTab.add("Pose X", 0.0).entry
+    private var poseYEntry = shuffleboardTab.add("Pose Y", 0.0).entry
+    private var seesAprilTag = shuffleboardTab.add("Sees April Tag?", false).withWidget(BuiltInWidgets.kBooleanBox).entry
+
+    private var joystickControlledEntry: GenericEntry = shuffleboardTab
         .add("Joystick Control", true)
         .withWidget("Toggle Button")
         .withProperties(mapOf("colorWhenTrue" to "green", "colorWhenFalse" to "maroon"))
         .getEntry()
-
-    private var poseXEntry = ShuffleboardTab.add("Pose X", 0.0).entry
-    private var poseYEntry = ShuffleboardTab.add("Pose Y", 0.0).entry
-    private var seesAprilTag = ShuffleboardTab.add("Sees April Tag?", false).withWidget(BuiltInWidgets.kBooleanBox).entry
-
-    private var yawOffset:Double = 0.0
-
-    private val camera = Camera("hawkeye", "")
 
     init {
         thetaPIDController.enableContinuousInput(360.0, 0.0)
@@ -68,17 +73,20 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
         //https://github.com/Team364/BaseFalconSwerve/issues/8#issuecomment-1384799539
         Timer.delay(1.0)
         resetModulesToAbsolute()
-        ShuffleboardTab.add("Stop", stopCommand()).withWidget(BuiltInWidgets.kCommand)
-        ShuffleboardTab.add("Zero Heading", zeroHeadingCommand()).withWidget(BuiltInWidgets.kCommand)
-        ShuffleboardTab.add("Dig In", digInCommand()).withWidget(BuiltInWidgets.kCommand)
-        ShuffleboardTab.add("Robot Heading", gyro).withWidget(BuiltInWidgets.kGyro)
+        shuffleboardTab.add("Stop", stopCommand()).withWidget(BuiltInWidgets.kCommand)
+        shuffleboardTab.add("Zero Heading", zeroHeadingCommand()).withWidget(BuiltInWidgets.kCommand)
+        shuffleboardTab.add("Dig In", digInCommand()).withWidget(BuiltInWidgets.kCommand)
+        shuffleboardTab.add("Robot Heading", gyro).withWidget(BuiltInWidgets.kGyro)
+        shuffleboardTab.add(field).withWidget(BuiltInWidgets.kField)
 
-
-
-
-        ShuffleboardTab.add(field).withWidget(BuiltInWidgets.kField)
-
-        poseEstimator = SwerveDrivePoseEstimator(kinematics, getYaw(), getModulePositions(), startingPose, VecBuilder.fill(0.1, 0.1, 0.1),  VecBuilder.fill(0.5, 0.5, 0.5))
+        poseEstimator = SwerveDrivePoseEstimator(
+            kinematics,
+            getYaw(),
+            getModulePositions(),
+            startingPose,
+            VecBuilder.fill(0.1, 0.1, 0.1),
+            VecBuilder.fill(0.5, 0.5, 0.5)
+        )
     }
 
     override fun periodic() {
@@ -149,13 +157,13 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
         }
     }
 
-    fun stopCommand() =
+    fun stopCommand(): Command =
         run { stop() }
             .until { joystickControlledEntry.getBoolean(true) }
             .beforeStarting (runOnce { joystickControlledEntry.setBoolean(false) } )
 
 
-    fun digInCommand() =
+    fun digInCommand(): Command =
         runOnce {
             joystickControlledEntry.setBoolean(false)
             //because driving can be field-oriented, we need to take an angle perprendicular to the direction of the wheels, so that motion stops if we are being pushed
@@ -170,11 +178,11 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
             }.until { joystickControlledEntry.getBoolean(true) })
 
     //reset yaw on gyro so that wherever the gyro is pointing is the new forward(0) value
-    fun zeroHeadingCommand() =
+    fun zeroHeadingCommand(): Command =
         runOnce { zeroYaw() }
 
     //move robot to pose given in endpose argument
-    fun moveToPoseCommand(endPose: Pose2d) =
+    fun moveToPoseCommand(endPose: Pose2d): Command =
         run {
             setModuleStates(
                 constructModuleStatesFromChassisSpeeds(
@@ -199,7 +207,7 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
     fun getModulePositions(): Array<SwerveModulePosition> = modules.map { it.getPosition() }.toTypedArray()
 
     //sets poseEstimator's recorded position to a pose2d given in startingpose argument
-    fun zeroPoseToFieldPosition(startingPose: Pose2d){
+    fun zeroPoseToFieldPosition(startingPose: Pose2d) {
         yawOffset = startingPose.rotation.degrees
         resetModulesToAbsolute()
         poseEstimator.resetPosition(getYaw(), getModulePositions(), startingPose)
