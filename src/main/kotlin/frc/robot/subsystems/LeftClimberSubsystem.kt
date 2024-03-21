@@ -7,18 +7,14 @@ import frc.lib.utils.*
 class LeftClimberSubsystem: SubsystemBase(){
     val motor = Motor(14)
     val encoder: RelativeEncoder = motor.encoder
+    val limitSwitch = motor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen)
 
-    /* CONSTANTS */
-    private val metersPerRotation: Double = 0.0
-    private val minPositionMeters: Double = 0.0
-    private val maxPositionMeters: Double = 0.34
-    
     init {
         motor.inverted = true
         // TODO test if this is needed
         //rightEncoder.inverted = true
         
-        encoder.positionConversionFactor = 1.0/530
+        encoder.positionConversionFactor = 1.0 / 104
         encoder.position = 0.0
     }
 
@@ -28,12 +24,12 @@ class LeftClimberSubsystem: SubsystemBase(){
      */
 
     fun down(): Command =
-        run { motor.set(-0.7) }
-            .until { encoder.position < 0.1 }
+        run { motor.set(-0.3) }
+            .until { encoder.position < 0.1 || limitSwitch.isPressed}
             .andThen(runOnce { motor.stopMotor() })
 
     fun up(): Command =
-        run { motor.set(0.9) }
+        run { motor.set(0.3) }
             .until { encoder.position > 0.9 }
             .andThen(runOnce { motor.stopMotor() })
 
@@ -50,7 +46,8 @@ class LeftClimberSubsystem: SubsystemBase(){
         runOnce { motor.set(0.0) }
 
     override fun periodic() {
-        //System.out.println("Left climber: " + encoder.position)
+        System.out.println("Left climber: " + encoder.position)
+        System.out.println("Left limit switch: " + limitSwitch.isPressed)
         if(encoder.position !in -0.1..1.1){
             stop().schedule()
         }

@@ -4,14 +4,11 @@ import com.revrobotics.*
 import edu.wpi.first.wpilibj2.command.*
 import frc.lib.utils.*
 
-class RightClimberSubsystem: SubsystemBase(){
+class RightClimberSubsystem(): SubsystemBase(){
     val motor = Motor(15)
     val encoder: RelativeEncoder = motor.encoder
+    val limitSwitch = motor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen)
 
-    /* CONSTANTS */
-    private val metersPerRotation: Double = 0.0
-    private val minPositionMeters: Double = 0.0
-    private val maxPositionMeters: Double = 0.34
 
     init {
         motor.inverted = true
@@ -21,10 +18,14 @@ class RightClimberSubsystem: SubsystemBase(){
         encoder.position = 0.0
     }
 
+    /**
+     * TODO make a func that converts meters to rotations and a function that converts rotations to meters
+     * TODO using these functions rotate the motors on the arms accordingly while accounting for min and max heights
+     */
 
     fun down(): Command =
         run { motor.set(-0.5) }
-            .until { encoder.position < 0.1 }
+            .until { encoder.position < 0.1  || limitSwitch.isPressed}
             .andThen(runOnce { motor.stopMotor() })
 
     fun up(): Command =
@@ -36,16 +37,18 @@ class RightClimberSubsystem: SubsystemBase(){
         runOnce { encoder.position = 0.0 }
 
     fun testup():Command =
-        run { motor.set(0.2) }
+            run { motor.set(0.2) }
 
     fun testdown():Command =
-        run { motor.set(-0.2) }
+            run { motor.set(-0.2) }
 
     fun stop(): Command =
         runOnce { motor.set(0.0) }
 
     override fun periodic() {
-        //System.out.println("Right climber: " + encoder.position)
+        System.out.println("Right climber: " + encoder.position)
+        System.out.println("Right limit switch: " +limitSwitch.isPressed)
+
 
         if(encoder.position !in -0.1..1.1){
             stop().schedule()

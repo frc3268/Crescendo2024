@@ -1,12 +1,14 @@
 package frc.robot.commands
 
 import edu.wpi.first.math.geometry.*
+import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import frc.lib.basics.SwerveDriveBase
 import frc.lib.utils.*
 import frc.robot.subsystems.*
+import java.util.function.BooleanSupplier
 import kotlin.math.*
 
 class Autos private constructor() {
@@ -48,32 +50,31 @@ class Autos private constructor() {
                         Pose2d(1.0, 0.0, 0.0.rotation2dFromDeg()),
                 )
 
-<<<<<<< HEAD
-        fun goToSpeakerCommand(drive: SwerveDriveBase, location: Int?): Command {
-            var location = location
-            if (location == null || location > 3 || location < 1) {
-                
-                location = 1
-=======
-//todo! this needs to be finished
         fun goToSpeakerCommand(drive: SwerveDriveBase, location:Int?): Command {
             var locationVar = location
             if (locationVar == null || locationVar > 3 || locationVar < 1) {
                 locationVar = 1
->>>>>>> f7eb19f398ca223ed4d639c2f617db8e3296021c
             }
             // location maps to one of three points on the subwoofer
             // 1 -> closer to the source
             // 2 -> in the middle
             // 3 -> furthest from the source
             when (location) {
-                1 -> return WaitCommand(1.0) // add a goto statement after the retrun
+                1 -> return goto(
+                        drive,
+                        Pose2d(16.0824625,4.96116891,-60.0.rotation2dFromDeg()),
+                        Pose2d(0.958787,4.96116891,60.0.rotation2dFromDeg())
+                )
                 2 -> return goto(
                     drive,
                     Pose2d(15.256, 5.547868, 0.0.rotation2dFromDeg()),
                     Pose2d(1.6096, 5.547868, 180.0.rotation2dFromDeg())
                 )
-                3 -> return WaitCommand(1.0)// add a goto statement after the retrun
+                3 -> return goto(
+                        drive,
+                        Pose2d(16.0824625,6.54503,60.0.rotation2dFromDeg()),
+                        Pose2d(0.958787,6.54503,-60.0.rotation2dFromDeg())
+                )
             }
 
 
@@ -88,6 +89,7 @@ class Autos private constructor() {
                         Pose2d(1.84404, 8.2042, 270.0.rotation2dFromDeg())
                 )
 
+        // documentation: what is closerToBaseLine?
         fun goToSourceCommand(drive: SwerveDriveBase, closerToBaseLine: Boolean): Command =
                 goto(
                         drive,
@@ -131,11 +133,9 @@ class Autos private constructor() {
         fun intakeAndUpCommand(intake: IntakeSubsystem): Command =
                 SequentialCommandGroup(
                         intake.armDownCommand(),
-                        intake.takeInCommand(),
-                        intake.stopIntake(),
+                        intake.intakeAndStopCommand(),
                         intake.armUpCommand(),
                 )
-
 
         fun intakeNoteCommand(intake: IntakeSubsystem): Command =
                 SequentialCommandGroup(
@@ -179,7 +179,6 @@ class Autos private constructor() {
                 shooter.stopCommand()
             )
 
-
         fun shootAmpCommand(intake: IntakeSubsystem, shooter: ShooterSubsystem): Command =
                 SequentialCommandGroup(
                         shooter.ampCommand(),
@@ -216,41 +215,44 @@ class Autos private constructor() {
                         shootSpeakerCommand(intake, shooter))
 
         // the Ideal is we test this first
-        // the rings param asks for an array of bools based on which rings you are picking up
+        // the rings param asks for an array of GenericEntries, which are the shuffleboard booleanbox things
+        // from those entries, you can get the boolean array mentioned in the next line
         // the array [True, False, True] will pick up ring A then C and not B
-        fun collectStartingRingsAndShoot(drive: SwerveDriveBase, intake: IntakeSubsystem, shooter: ShooterSubsystem, location: Int, rings:Array<Boolean>): Command {
-            val sequence:SequentialCommandGroup = SequentialCommandGroup()
+        fun collectStartingRingsAndShoot(drive: SwerveDriveBase, intake: IntakeSubsystem, shooter: ShooterSubsystem, location: Int, rings:Array<GenericEntry>): Command {
+            val sequence: SequentialCommandGroup = SequentialCommandGroup()
             sequence.addCommands(goToSpeakerCommand(drive, location))
             sequence.addCommands(shootSpeakerCommand(intake, shooter))
-            // the ring right along the middle
-            if (rings[0]) {
-                sequence.addCommands(goto(drive, Pose2d(14.127, 4.105656, 180.0.rotation2dFromDeg()), Pose2d(2.413, 4.105656, 0.0.rotation2dFromDeg())))
-                sequence.addCommands(intakeAndUpCommand(intake))
-                sequence.addCommands(goToSpeakerCommand(drive, location))
-                sequence.addCommands(shootSpeakerCommand(intake, shooter))
-            }
-            // ring above the first ring
-            if (rings[1]) {
-                sequence.addCommands(goto(drive, Pose2d(14.127, 5.553456, 180.0.rotation2dFromDeg()), Pose2d(2.413, 5.553456, 0.0.rotation2dFromDeg())))
-                sequence.addCommands(intakeAndUpCommand(intake))
-                sequence.addCommands(goToSpeakerCommand(drive, location))
-                sequence.addCommands(shootSpeakerCommand(intake, shooter))
-            }
-            // ring above the second ring
-            if (rings[2]) {
-                // I kept the equations here in case we need to adjust for whatever reason the 0.1778 is half the width of the ring in meters, I haven't adjusted for how far away from the ring we have to be
-                // Red Equation : Center of Ring + half the ring's size + a foot (for intake) Blue Equation : Center of Ring + half the ring's size + a foot (intake)
-                sequence.addCommands(goto(drive, Pose2d(13.6444 + 0.1778 + 0.3048, 7.001256, 180.0.rotation2dFromDeg()), Pose2d(2.8956 - 0.1778 - 0.3048, 7.001256, 0.0.rotation2dFromDeg())))
-                sequence.addCommands(intakeAndUpCommand(intake))
-                sequence.addCommands(goToSpeakerCommand(drive, location))
-                sequence.addCommands(shootSpeakerCommand(intake, shooter))
-            }
-            // will go to the bottom ring if Red and the top ring if Blue
-            sequence.addCommands(goto(drive, Pose2d(8.2927  + 0.1778 + 0.3048, 0.752856, 180.0.rotation2dFromDeg()), Pose2d(8.2927  - 0.1778 - 0.3048, 7.457144, 0.0.rotation2dFromDeg())))
-            return sequence
+            return runOnce({
+                // the ring right along the middle
+                if (rings[0].getBoolean(false)) {
+                    sequence.addCommands(goto(drive, Pose2d(14.127, 4.105656, 180.0.rotation2dFromDeg()), Pose2d(2.413, 4.105656, 0.0.rotation2dFromDeg())))
+                    sequence.addCommands(intakeAndUpCommand(intake))
+                    sequence.addCommands(goToSpeakerCommand(drive, location))
+                    sequence.addCommands(shootSpeakerCommand(intake, shooter))
+                }
+                // ring above the first ring
+                if (rings[1].getBoolean(false)) {
+                    sequence.addCommands(goto(drive, Pose2d(14.127, 5.553456, 180.0.rotation2dFromDeg()), Pose2d(2.413, 5.553456, 0.0.rotation2dFromDeg())))
+                    sequence.addCommands(intakeAndUpCommand(intake))
+                    sequence.addCommands(goToSpeakerCommand(drive, location))
+                    sequence.addCommands(shootSpeakerCommand(intake, shooter))
+                }
+                // ring above the second ring
+                if (rings[2].getBoolean(false)) {
+                    // I kept the equations here in case we need to adjust for whatever reason the 0.1778 is half the width of the ring in meters, I haven't adjusted for how far away from the ring we have to be
+                    // Red Equation : Center of Ring + half the ring's size + a foot (for intake) Blue Equation : Center of Ring + half the ring's size + a foot (intake)
+                    sequence.addCommands(goto(drive, Pose2d(13.6444 + 0.1778 + 0.3048, 7.001256, 180.0.rotation2dFromDeg()), Pose2d(2.8956 - 0.1778 - 0.3048, 7.001256, 0.0.rotation2dFromDeg())))
+                    sequence.addCommands(intakeAndUpCommand(intake))
+                    sequence.addCommands(goToSpeakerCommand(drive, location))
+                    sequence.addCommands(shootSpeakerCommand(intake, shooter))
+                }
+            }, drive, intake, shooter).andThen(
+                sequence,
+                // will go to the bottom ring if Red and the top ring if Blue
+                goto(drive, Pose2d(8.2927 + 0.1778 + 0.3048, 0.752856, 180.0.rotation2dFromDeg()), Pose2d(8.2927 - 0.1778 - 0.3048, 7.457144, 0.0.rotation2dFromDeg()))
+            )
         }
-
-
+        
         fun emergencyStopCommand(shooter: ShooterSubsystem, intake: IntakeSubsystem): Command =
             SequentialCommandGroup(
                 shooter.stopCommand(),
