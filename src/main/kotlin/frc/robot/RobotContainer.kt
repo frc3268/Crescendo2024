@@ -33,12 +33,14 @@ class RobotContainer {
     val teleopCommand = SwerveJoystickDrive(
         driveSubsystem,
         { driverController.getRawAxis(1) },
-        { driverController.getRawAxis(0) },
-        { driverController.getRawAxis(4) },
-            //-driverController.getRawAxis(4)
+        { -driverController.getRawAxis(0) },
+        { -driverController.getRawAxis(4) },
         { true }
     )
 
+    val ring1BooleanBox = GeneralTab.add("Collect ring 1?", false).withWidget(BuiltInWidgets.kBooleanBox).entry
+    val ring2BooleanBox = GeneralTab.add("Collect ring 2?", false).withWidget(BuiltInWidgets.kBooleanBox).entry
+    val ring3BooleanBox = GeneralTab.add("Collect ring 3?", false).withWidget(BuiltInWidgets.kBooleanBox).entry
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
     init {
         driveSubsystem.defaultCommand = teleopCommand
@@ -49,11 +51,14 @@ class RobotContainer {
             .withPosition(0, 0)
             .withSize(2, 1)
 
+
         autochooser.setDefaultOption("Taxi", Autos.taxiAuto(driveSubsystem))
         autochooser.addOption("Do nothing", WaitCommand(1.0))
         autochooser.addOption("Shoot to speaker", Autos.shootSpeakerCommand(intakeSubsystem, shooterSubsystem))
         autochooser.addOption("Shoot to speaker + taxi", Autos.shootSpeakerCommand(intakeSubsystem, shooterSubsystem).andThen(Autos.taxiAuto(driveSubsystem)))
         autochooser.addOption("Shoot, Intake, Shoot", Autos.driveUpShootSpeakerAndReturnToRingsCommand(driveSubsystem, intakeSubsystem, shooterSubsystem))
+        autochooser.addOption("Shoot, Take rings and Shoot", Autos.collectStartingRingsAndShoot(driveSubsystem, intakeSubsystem, shooterSubsystem, 1, arrayOf(ring1BooleanBox.value, ring2BooleanBox.value, ring3BooleanBox.value)))
+        //autochooser.addOption("test Shooter only", Autos.testShooterCommand(shooterSubsystem))
 
         GeneralTab.add("shoot speaker", Autos.shootSpeakerCommand(intakeSubsystem, shooterSubsystem)).withWidget(BuiltInWidgets.kCommand)
         GeneralTab.add("Ground intake", Autos.intakeAndUpCommand(intakeSubsystem)).withWidget(BuiltInWidgets.kCommand)
@@ -96,8 +101,8 @@ class RobotContainer {
             runs intake
             (not arm!)
          */
-        driverController.leftTrigger().onTrue(intakeSubsystem.runIntakeCommand())
-        driverController.leftTrigger().onFalse(intakeSubsystem.stopIntake())
+        //driverController.leftTrigger().onTrue(intakeSubsystem.runIntakeCommand())
+        //driverController.leftTrigger().onFalse(intakeSubsystem.stopIntake())
 
         /*
         RT (Shoot):
@@ -105,8 +110,8 @@ class RobotContainer {
             2) Run intake in reverse to feed it into shooter
             This assumes the arm is already up. If it's down, the note will be shot back onto the ground.
          */
+        //driverController.rightTrigger().onTrue(Autos.testShooterCommand(shooterSubsystem))
         driverController.rightTrigger().onTrue(Autos.shootSpeakerCommand(intakeSubsystem, shooterSubsystem))
-
         /*
         LB: Arm up
          */

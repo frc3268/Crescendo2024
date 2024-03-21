@@ -6,16 +6,18 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.*
-import frc.lib.utils.rotation2dFromDeg
+import frc.lib.utils.*
 
 class IntakeSubsystem: SubsystemBase() {
-    val intakeMotor = CANSparkMax(10, CANSparkLowLevel.MotorType.kBrushless)
-    val armMotor = CANSparkMax(9, CANSparkLowLevel.MotorType.kBrushless)
+    val intakeMotor = Motor(10)
+    val armMotor = Motor(9)
     val armEncoder: RelativeEncoder = armMotor.encoder
+    val intakeEncoder: RelativeEncoder = intakeMotor.encoder
     val armPIDController = PIDController(1.0/50,0.0,0.0)
 
     val shuffleboardTab = Shuffleboard.getTab("General")
-    val intakeSwitchEntry = shuffleboardTab.add("Intake lim switch", 0.0).entry
+    val intakeArmPositionEntry = shuffleboardTab.add("Intake arm encoder position", 0.0).entry
+    val intakeVelocityEntry = shuffleboardTab.add("Intake encoder velocity", 0.0).entry
 
     // TODO replace with actual channel
     val limitSwitch = DigitalInput(0)
@@ -32,7 +34,12 @@ class IntakeSubsystem: SubsystemBase() {
     }
 
     init {
-        armEncoder.positionConversionFactor = 3 / 2 / 1.0
+        shuffleboardTab.add("Arm down - TESTING", runOnce{armMotor.set(-0.3)})
+        shuffleboardTab.add("Arm up - TESTING", runOnce{armMotor.set(0.3)})
+        shuffleboardTab.add("Intake in - TESTING", runIntakeAtSpeed(INTAKE_SPEED))
+        shuffleboardTab.add("Intake out - TESTING", runIntakeAtSpeed(OUTTAKE_SPEED))
+        shuffleboardTab.add("STOP - TESTING", stopAllCommand())
+        armEncoder.positionConversionFactor = 1.0
     }
 
     fun stopIntake(): Command =
@@ -130,14 +137,16 @@ class IntakeSubsystem: SubsystemBase() {
         armEncoder.position.rotation2dFromDeg()
 
     override fun periodic() {
-        // println("Arm angle: " + getArmPosition().degrees)
 
         // Stop arm guard in case it screws itself over
-        if (getArmPosition().degrees >= 290.0) armUpCommand()
+        /*
+        if (getArmPosition().degrees >= 290.0) stopArm().schedule()
         else if (getArmPosition().degrees <= -10.0)
-            armDownCommand()
+            stopArm().schedule()
+         */
 
-        intakeSwitchEntry.setBoolean(limitSwitch.get())
+        intakeArmPositionEntry.setDouble(armEncoder.position)
+        intakeVelocityEntry.setDouble(intakeEncoder.velocity)
     }
 
     override fun simulationPeriodic() {

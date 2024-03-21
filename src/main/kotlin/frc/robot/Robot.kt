@@ -53,7 +53,7 @@ class Robot: TimedRobot() {
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class.  */
     override fun autonomousInit() {
         autonomousCommand = robotContainer?.autochooser?.selected
-        robotContainer?.driveSubsystem?.zeroYaw()
+        robotContainer?.driveSubsystem?.zeroPoseToCameraPosition()
         /*
         TODO: this may need to be deleted
         robotContainer?.driveSubsystem?.zeroPoseToFieldPositionCommand(

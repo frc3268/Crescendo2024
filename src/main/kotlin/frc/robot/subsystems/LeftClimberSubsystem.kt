@@ -2,9 +2,10 @@ package frc.robot.subsystems
 
 import com.revrobotics.*
 import edu.wpi.first.wpilibj2.command.*
+import frc.lib.utils.*
 
 class LeftClimberSubsystem: SubsystemBase(){
-    val motor = CANSparkMax(14, CANSparkLowLevel.MotorType.kBrushless)
+    val motor = Motor(14)
     val encoder: RelativeEncoder = motor.encoder
 
     /* CONSTANTS */
