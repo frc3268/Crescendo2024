@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.lib.*
 import frc.robot.commands.*
+import frc.robot.subsystems.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.File
@@ -29,6 +30,10 @@ class RobotContainer {
     private val GeneralTab = Shuffleboard.getTab("General")
     private val TroubleshootingTab = Shuffleboard.getTab(Constants.TROUBLESHOOTING_TAB)
 
+    val intakeSubsystem = IntakeSubsystem()
+    val shooterSubsystem = ShooterSubsystem()
+    val leftClimberSubsystem = LeftClimberSubsystem()
+    val rightClimberSubsystem = RightClimberSubsystem()
     val driveSubsystem = SwerveDriveBase(Pose2d())
 
     private val driverController = CommandXboxController(Constants.OperatorConstants.kDriverControllerPort)
@@ -96,7 +101,75 @@ class RobotContainer {
 
 
     /** The container for the robot. Contains subsystems, OI devices, and commands.  */
+    //on true
+    //while true
+    //toggle
     init {
+        AutoCommand(
+            SequentialCommandGroup(
+                intakeSubsystem.armDownCommand(),
+                intakeSubsystem.takeInCommand(),
+                intakeSubsystem.stopIntake(),
+                intakeSubsystem.armUpCommand(),
+            ),
+            autos,
+            name = "Intake and up",
+            binding = driverController.leftTrigger(),
+        )
+
+        AutoCommand(
+            shooterSubsystem.runAtSpeedCommand(0.8).andThen(shooterSubsystem.stopCommand()),
+            autos,
+            name = "Rev Shooters",
+            binding = driverController.rightBumper(),
+            triggerType = TriggerType.TOGGLE
+        )
+
+        AutoCommand(
+            intakeSubsystem.takeOutCommand(),
+            autos,
+            name = "Outtake Note",
+            binding = driverController.rightTrigger(),
+            triggerType = TriggerType.WHILE_TRUE
+        )
+
+        AutoCommand(
+            ParallelCommandGroup(
+                leftClimberSubsystem.up(),
+                rightClimberSubsystem.up()
+            ),
+            name = "Climbers Up",
+            shuffleboardTab = GeneralTab
+        )
+
+        AutoCommand(
+            ParallelCommandGroup(
+                leftClimberSubsystem.down(),
+                rightClimberSubsystem.down()
+            ),
+            name = "Climbers Down",
+            shuffleboardTab = GeneralTab
+        )
+
+        AutoCommand(
+            ParallelCommandGroup(
+                leftClimberSubsystem.stop(),
+                rightClimberSubsystem.stop()
+            ),
+            name = "Climbers Stop",
+            shuffleboardTab = TroubleshootingTab
+        )
+
+        AutoCommand(
+            SequentialCommandGroup(
+                shooterSubsystem.stopCommand(),
+                intakeSubsystem.stopAllCommand()
+            ),
+            name = "Emergency STOP",
+            shuffleboardTab = GeneralTab,
+            binding = driverController.y()
+        )
+
         driveSubsystem.defaultCommand = teleopCommand
 
         GeneralTab
@@ -109,6 +182,16 @@ class RobotContainer {
             .withWidget(BuiltInWidgets.kComboBoxChooser)
             .withPosition(2, 0)
             .withSize(2, 1)
+
+        // Troubleshooting tab holds manual controls for the climber and a reset for the arm encoder
+        TroubleshootingTab.add("CLIMBER L down", leftClimberSubsystem.testdown()).withWidget(BuiltInWidgets.kCommand)
+        TroubleshootingTab.add("CLIMBER L up", leftClimberSubsystem.testup()).withWidget(BuiltInWidgets.kCommand)
+
+        TroubleshootingTab.add("CLIMBER R down", rightClimberSubsystem.testdown()).withWidget(BuiltInWidgets.kCommand)
+        TroubleshootingTab.add("CLIMBER R up", rightClimberSubsystem.testup()).withWidget(BuiltInWidgets.kCommand)
+
+        TroubleshootingTab.add("Zero ARM ENCODER", intakeSubsystem.zeroArmEncoderCommand()).withWidget(BuiltInWidgets.kCommand)
+
 
         for (file:File in File(Filesystem.getDeployDirectory().toString() + "/paths").listFiles()?.filter { it.isFile }!!){
             autochooser.addOption(file.name,Json.decodeFromStream<AutoSequence>(
