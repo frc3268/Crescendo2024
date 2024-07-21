@@ -1,8 +1,15 @@
 package frc.robot
 
-import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import org.littletonrobotics.junction.LogFileUtil
+import org.littletonrobotics.junction.LoggedRobot
+import org.littletonrobotics.junction.Logger
+import org.littletonrobotics.junction.networktables.NT4Publisher
+import org.littletonrobotics.junction.wpilog.WPILOGReader
+import org.littletonrobotics.junction.wpilog.WPILOGWriter
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -10,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-class Robot: TimedRobot() {
+class Robot: LoggedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
 
@@ -26,6 +33,29 @@ class Robot: TimedRobot() {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
+        Logger.recordMetadata("ProjectName", "MyProject") // Set a metadata value
+
+        if (isReal()) {
+            // Logger.addDataReceiver(WPILOGWriter()) // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(NT4Publisher()) // Publish data to NetworkTables
+            PowerDistribution(1, PowerDistribution.ModuleType.kRev) // Enables power distribution logging
+        } else {
+            setUseTiming(false) // Run as fast as possible
+            val logPath = LogFileUtil.findReplayLog() // Pull the replay log from AdvantageScope (or prompt the user)
+            Logger.setReplaySource(WPILOGReader(logPath)) // Read replay log
+            Logger.addDataReceiver(
+                WPILOGWriter(
+                    LogFileUtil.addPathSuffix(
+                        logPath,
+                        "_sim"
+                    )
+                )
+            ) // Save outputs to a new log
+        }
+
+
+// Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
+        Logger.start() // Start logging! No more data receivers, replay sources, or metadata values may be added.
 
     }
 

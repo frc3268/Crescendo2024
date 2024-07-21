@@ -2,6 +2,7 @@ package frc.lib
 
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.*
 import edu.wpi.first.math.kinematics.*
@@ -11,6 +12,8 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.shuffleboard.*
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.*
+import frc.robot.Constants
+import frc.robot.subsystems.drive.SwerveModuleIOSim
 import org.photonvision.EstimatedRobotPose
 import java.util.*
 import kotlin.math.*
@@ -21,7 +24,19 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
 
     private var poseEstimator: SwerveDrivePoseEstimator
     private val modules: List<SwerveModule> =
-            SwerveDriveConstants.modules.mapIndexed { _, swerveMod -> SwerveModule(swerveMod) }
+        when (Constants.mode){
+            Constants.States.REAL -> {
+                SwerveDriveConstants.modules.mapIndexed { _, swerveMod -> SwerveModule(SwerveModuleIOSparkMax(swerveMod),swerveMod.MODULE_NUMBER) }
+            }
+            Constants.States.REPLAY -> {
+                SwerveDriveConstants.modules.mapIndexed { _, swerveMod -> SwerveModule(object: SwerveModuleIO {
+                    override val turnPIDController: PIDController = swerveMod.PID_CONTROLLER
+                } ,swerveMod.MODULE_NUMBER) }
+            }
+            Constants.States.SIM -> {
+                SwerveDriveConstants.modules.mapIndexed { _, swerveMod -> SwerveModule(SwerveModuleIOSim(swerveMod.MODULE_NUMBER),swerveMod.MODULE_NUMBER) }
+            }
+        }
     private val gyro = AHRS(SPI.Port.kMXP)
 
     private var joystickControlledEntry: GenericEntry = shuffleboardTab
@@ -69,7 +84,7 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
         }
         //update module tabs on shuffleboard
         for (mod in modules) {
-            mod.updateShuffleboard()
+            mod.update()
         }
         //update drivetrain tab on shuffleboard
         field.robotPose = getPose()
@@ -99,7 +114,7 @@ class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveDriveConstants.DrivetrainConsts.MAX_SPEED_METERS_PER_SECOND)
 
         for (mod in modules) {
-            mod.setDesiredState(desiredStates[mod.moduleConstants.MODULE_NUMBER - 1])
+            mod.setDesiredState(desiredStates[mod.index - 1])
         }
     }
 
