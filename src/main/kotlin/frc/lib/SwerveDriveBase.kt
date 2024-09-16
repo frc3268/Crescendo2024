@@ -15,7 +15,6 @@ import frc.robot.subsystems.drive.SwerveModuleIOSim
 import org.littletonrobotics.junction.Logger
 import org.photonvision.EstimatedRobotPose
 import java.util.*
-import kotlin.math.*
 
 class SwerveDriveBase(startingPose: Pose2d) : SubsystemBase() {
     private val field = Field2d()

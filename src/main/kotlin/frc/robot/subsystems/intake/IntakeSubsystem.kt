@@ -1,4 +1,4 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.intake
 
 import com.revrobotics.*
 import edu.wpi.first.math.controller.PIDController
@@ -87,12 +87,12 @@ class IntakeSubsystem: SubsystemBase() {
         runOnce { intakeMotor.setVoltage(speed * 12.0) }
 
     fun armUpCommand(): Command =
-        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, UP_ANGLE-5.0)) }
+        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, UP_ANGLE -5.0)) }
             .until { getArmPosition().degrees < UP_ANGLE }
             .andThen(stopArm())
 
     fun armDownCommand(): Command =
-        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, DOWN_ANGLE+5.0)) }
+        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, DOWN_ANGLE +5.0)) }
             .until { getArmPosition().degrees > DOWN_ANGLE }
             .andThen(stopArm())
     fun takeInCommand(): Command =
