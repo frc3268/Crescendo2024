@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.*
 import frc.lib.Motor
 import frc.lib.rotation2dFromDeg
 import frc.robot.Constants
+import org.littletonrobotics.junction.Logger
+
 
 class IntakeSubsystem: SubsystemBase() {
     private val intakeMotor = Motor(9)
