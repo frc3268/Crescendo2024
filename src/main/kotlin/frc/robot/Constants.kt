@@ -14,4 +14,10 @@ object Constants {
         const val kDriverControllerPort = 0
         const val STICK_DEADBAND = 0.1
     }
+
+    enum class States{REAL, SIM, REPLAY}
+
+    val mode = States.REAL
+
+    const val TROUBLESHOOTING_TAB = "Troubleshooting"
 }

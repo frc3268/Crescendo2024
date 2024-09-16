@@ -1,0 +1,19 @@
+{"commands" : [
+  [
+    "shootSpeaker"
+  ],
+  [
+    "gotoRing",
+    "intakeDown"
+  ],
+  [
+    "intakeUp"
+  ],
+  [
+    "goToSpeaker"
+  ],
+  [
+    "shootSpeaker"
+  ]
+]
+}
