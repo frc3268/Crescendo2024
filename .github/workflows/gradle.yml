@@ -9,7 +9,7 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "**_Build" ]
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
@@ -19,9 +19,8 @@ permissions:
 
 jobs:
   build:
-
+    name: Build with Gradle
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 11
@@ -29,7 +28,18 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
+        
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
         arguments: build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Package
+        path: build/libs 
+        
