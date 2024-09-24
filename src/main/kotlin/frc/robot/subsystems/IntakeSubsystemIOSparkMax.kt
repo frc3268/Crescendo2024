@@ -1,5 +1,6 @@
-package frc.lib
+package frc.robot.subsystems
 
+import intakeSubsystemIO
 import com.revrobotics.CANSparkMax
 
 class IntakeSubsystemIOSparkMax() :IntakeSubsystemIO {

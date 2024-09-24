@@ -1,4 +1,4 @@
-package frc.lib
+package frc.robot.subsystems
 
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
