@@ -32,10 +32,24 @@ interface IntakeSubsystemIO {
 
 class IntakeIOInputsAutoLogged : IntakeSubsystemIO.IntakeIOInputs(), LoggableInputs {
     override fun toLog(table: LogTable) {
-
+        table.put("armAppliedVolts", armAppliedVolts)
+        table.put("armCurrentAmps", armCurrentAmps)
+        table.put("armPosition", armPosition)
+        table.put("armVelocityRadPerSec", armVelocityRadPerSec)
+        table.put("intakeAppliedVolts", intakeAppliedVolts)
+        table.put("intakeCurrentAmps", intakeCurrentAmps)
+        table.put("intakePosition", intakePosition)
+        table.put("intakeVelocityRadPerSec", intakeVelocityRadPerSec)
     }
 
     override fun fromLog(table: LogTable) {
-
+        table.get("armAppliedVolts", armAppliedVolts)
+        table.get("armCurrentAmps", armCurrentAmps)
+        table.get("armPosition", armPosition)
+        table.get("armVelocityRadPerSec", armVelocityRadPerSec)
+        table.get("intakeAppliedVolts", intakeAppliedVolts)
+        table.get("intakeCurrentAmps", intakeCurrentAmps)
+        table.get("intakePosition", intakePosition)
+        table.get("intakeVelocityRadPerSec", intakeVelocityRadPerSec)
     }
 }
