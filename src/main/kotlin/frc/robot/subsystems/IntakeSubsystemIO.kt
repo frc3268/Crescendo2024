@@ -21,15 +21,15 @@ interface IntakeSubsystemIO {
         var intakeVelocityRadPerSec: Double = 0.0
     }
 
-    val turnPIDController:PIDController
+    val turnPIDController: PIDController
 
     /** Updates the set of loggable inputs.  */
     fun updateInputs(inputs: IntakeIOInputs) {}
 
-
     fun reset() {}
 }
 
+// FIXME: This should be automated
 class IntakeIOInputsAutoLogged : IntakeSubsystemIO.IntakeIOInputs(), LoggableInputs {
     override fun toLog(table: LogTable) {
         table.put("armAppliedVolts", armAppliedVolts)
