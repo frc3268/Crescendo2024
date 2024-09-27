@@ -17,7 +17,6 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.DCMotorSim
-import frc.lib.IntakeSubsystemIO
 import frc.lib.SwerveModuleIO
 import frc.lib.SwerveModuleIO.ModuleIOInputs
 import kotlin.math.abs
