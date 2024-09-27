@@ -43,6 +43,7 @@ class SwerveModuleIOSim(val index: Int) : SwerveModuleIO {
         turnSim.update(LOOP_PERIOD_SECS)
 
         //FIX
+        // is there supposed to be a drive position?
         inputs.driveVelocityMetersPerSec = driveSim.angularPositionRad
         inputs.driveVelocityMetersPerSec = driveSim.angularVelocityRadPerSec
         inputs.driveAppliedVolts = driveAppliedVolts
