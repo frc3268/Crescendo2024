@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.*
 import frc.lib.Motor
 import frc.lib.rotation2dFromDeg
 import frc.robot.Constants
+import org.littletonrobotics.junction.Logger
 
 class IntakeSubsystem: SubsystemBase() {
     private val intakeMotor = Motor(9)
@@ -87,12 +88,13 @@ class IntakeSubsystem: SubsystemBase() {
         runOnce { intakeMotor.setVoltage(speed * 12.0) }
 
     fun armUpCommand(): Command =
-        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, UP_ANGLE -5.0)) }
+        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, UP_ANGLE-5.0)) }
+
             .until { getArmPosition().degrees < UP_ANGLE }
             .andThen(stopArm())
 
     fun armDownCommand(): Command =
-        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, DOWN_ANGLE +5.0)) }
+        run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, DOWN_ANGLE+5.0)) }
             .until { getArmPosition().degrees > DOWN_ANGLE }
             .andThen(stopArm())
     fun takeInCommand(): Command =
