@@ -1,4 +1,4 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.intake
 
 import com.revrobotics.*
 import edu.wpi.first.math.controller.PIDController
@@ -10,7 +10,6 @@ import frc.lib.Motor
 import frc.lib.rotation2dFromDeg
 import frc.robot.Constants
 import org.littletonrobotics.junction.Logger
-
 
 class IntakeSubsystem: SubsystemBase() {
     private val intakeMotor = Motor(9)
@@ -90,6 +89,7 @@ class IntakeSubsystem: SubsystemBase() {
 
     fun armUpCommand(): Command =
         run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, UP_ANGLE-5.0)) }
+
             .until { getArmPosition().degrees < UP_ANGLE }
             .andThen(stopArm())
 

@@ -39,7 +39,7 @@ class SwerveModule(val io: SwerveModuleIO, val index:Int) {
     }
 
     fun getState() = SwerveModuleState(inputs.driveVelocityMetersPerSec, inputs.turnPosition)
-    fun getPosition() = SwerveModulePosition(inputs.driveVelocityMetersPerSec, inputs.turnPosition)
+    fun getPosition() = SwerveModulePosition(inputs.drivePositionMeters, inputs.turnPosition)
 
     fun setDesiredState(desiredState: SwerveModuleState) {
         if (abs(desiredState.speedMetersPerSecond) < 0.01) {

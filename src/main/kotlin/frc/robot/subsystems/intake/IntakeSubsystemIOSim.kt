@@ -10,14 +10,13 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-package frc.robot.subsystems.drive
+package frc.robot.subsystems.intake
 
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.DCMotorSim
-import frc.lib.IntakeSubsystemIO
 import frc.lib.SwerveModuleIO
 import frc.lib.SwerveModuleIO.ModuleIOInputs
 import kotlin.math.abs
