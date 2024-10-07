@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.lib.*
 import frc.robot.commands.*
 import frc.robot.subsystems.*
+import frc.robot.subsystems.intake.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.File
