@@ -11,7 +11,6 @@ import frc.lib.rotation2dFromDeg
 import frc.robot.Constants
 import org.littletonrobotics.junction.Logger
 
-
 class IntakeSubsystem: SubsystemBase() {
     private val intakeMotor = Motor(9)
     private val armMotor = Motor(10)
@@ -90,6 +89,7 @@ class IntakeSubsystem: SubsystemBase() {
 
     fun armUpCommand(): Command =
         run { armMotor.setPercentOutput(armPIDController.calculate(getArmPosition().degrees, UP_ANGLE-5.0)) }
+
             .until { getArmPosition().degrees < UP_ANGLE }
             .andThen(stopArm())
 

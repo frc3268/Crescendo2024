@@ -33,7 +33,7 @@ class SwerveModuleIOSparkMax(val moduleConstants: SwerveDriveConstants.ModuleCon
     private val DRIVE_GEAR_RATIO: Double = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0)
     private val TURN_GEAR_RATIO: Double = 150.0 / 7.0
 
-    fun ModuleIOSparkMax(index: Int) {
+    init {
                 absoluteEncoder.distancePerRotation =
                     SwerveDriveConstants.Encoder.POSITION_CONVERSION_FACTOR_DEGREES_PER_ROTATION
                 absoluteEncoder.positionOffset = moduleConstants.ANGLE_OFFSET.degrees

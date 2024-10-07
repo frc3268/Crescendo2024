@@ -16,10 +16,6 @@ import frc.robot.subsystems.intake.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.File
-import java.util.function.Supplier
-import kotlin.math.atan
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
