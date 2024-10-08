@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake
 
+import frc.robot.subsystems.intake.IntakeSubsystemConstants.IntakeConstants
 import com.revrobotics.CANSparkBase.IdleMode
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
@@ -14,7 +15,6 @@ import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import frc.lib.SwerveModuleIO.ModuleIOInputs
-import frc.robot.subsystems.intake.IntakeSubsystemConstants.IntakeConstants
 import kotlin.math.IEEErem
 
 
