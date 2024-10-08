@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake
 
-import frc.robot.subsystems.intake.IntakeSubsystemConstants.IntakeConstants
 import com.revrobotics.CANSparkBase.IdleMode
 import com.revrobotics.CANSparkLowLevel
 import com.revrobotics.CANSparkMax
@@ -15,6 +14,7 @@ import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import frc.lib.SwerveModuleIO.ModuleIOInputs
+import frc.lib.Rotation2dConversionHelper
 import kotlin.math.IEEErem
 
 
@@ -71,24 +71,24 @@ class IntakeSubsystemIOSparkMax() : IntakeSubsystemIO {
         inputs.turnCurrentAmps = doubleArrayOf(angleMotor.outputCurrent)
     }
 
-    // TODO: REDO THIS
-    public fun setDriveVoltage(volts: Double) {
+    // TODO: REDO CLASS ENCAPSULATION
+    fun setDriveVoltage(volts: Double) {
         driveMotor.setVoltage(volts)
     }
 
-    public fun setTurnVoltage(volts: Double) {
+    fun setTurnVoltage(volts: Double) {
         angleMotor.setVoltage(volts)
     }
 
-    public fun setDriveBrakeMode(enable: Boolean) {
+    fun setDriveBrakeMode(enable: Boolean) {
         driveMotor.setIdleMode(if (enable) IdleMode.kBrake else IdleMode.kCoast)
     }
 
-    public fun setTurnBrakeMode(enable: Boolean) {
+    fun setTurnBrakeMode(enable: Boolean) {
         angleMotor.setIdleMode(if (enable) IdleMode.kBrake else IdleMode.kCoast)
     }
 
-    public fun reset() {
+    override fun reset() {
         driveEncoder.position = 0.0
         angleEncoder.position = ((absoluteEncoder.absolutePosition * 360.0) + moduleConstants.ANGLE_OFFSET.degrees)
     }

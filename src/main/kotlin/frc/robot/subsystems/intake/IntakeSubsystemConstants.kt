@@ -16,7 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.math.util.Units
 import frc.lib.SwerveDriveConstants.DrivetrainConsts.WHEEL_DIAMETER_METERS
 
-object IntakeConstants {
+object IntakeSubsystemConstants {
     data class ModuleConstants(
             val ANGLE_OFFSET: Rotation2d,
             val ARM_MOTOR_ID: Int,
@@ -28,6 +28,7 @@ object IntakeConstants {
     object ArmMotor {
 
         // No idea what the gear ratio is, this is just a copy of SwerveDriveConstants
+        // TODO: this
         const val GEAR_RATIO: Double = 8.14 / 1.0
         const val POSITION_CONVERSION_FACTOR_METERS_PER_ROTATION: Double =
                 (WHEEL_DIAMETER_METERS * Math.PI) / GEAR_RATIO
