@@ -13,22 +13,22 @@ import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
-import frc.lib.SwerveModuleIO.ModuleIOInputs.IntakeConstants
-import frc.robot.subsystems.intake.IntakeSubsystemConstants
+import frc.lib.SwerveModuleIO.ModuleIOInputs
+import frc.robot.subsystems.intake.IntakeSubsystemConstants.IntakeConstants
 import kotlin.math.IEEErem
 
 
-class IntakeSubsystemIOSparkMax() :IntakeSubsystemIO {
+class IntakeSubsystemIOSparkMax() : IntakeSubsystemIO {
 
-    private val driveMotor = CANSparkMax(ModuleConstants.DRIVE_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless)
-    private val angleMotor = CANSparkMax(ModuleConstants.ANGLE_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless)
+    private val driveMotor = CANSparkMax(moduleConstants.DRIVE_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless)
+    private val angleMotor = CANSparkMax(moduleConstants.ANGLE_MOTOR_ID, CANSparkLowLevel.MotorType.kBrushless)
 
-    override val turnPIDController: PIDController = ModuleConstants.PID_CONTROLLER
+    override val turnPIDController: PIDController = moduleConstants.PID_CONTROLLER
 
     private val driveEncoder: RelativeEncoder = driveMotor.encoder
     private val angleEncoder: RelativeEncoder = angleMotor.encoder
 
-    private val absoluteEncoder = AnalogEncoder(ModuleConstants.ENCODER_ID)
+    private val absoluteEncoder = AnalogEncoder(moduleConstants.ENCODER_ID)
 
     // Gear ratios for SDS MK4i L2, adjust as necessary
     private val DRIVE_GEAR_RATIO: Double = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0)
@@ -37,7 +37,7 @@ class IntakeSubsystemIOSparkMax() :IntakeSubsystemIO {
     fun ModuleIOSparkMax(index: Int) {
         absoluteEncoder.distancePerRotation =
                 SwerveDriveConstants.Encoder.POSITION_CONVERSION_FACTOR_DEGREES_PER_ROTATION
-        absoluteEncoder.positionOffset = ModuleConstants.ANGLE_OFFSET.degrees
+        absoluteEncoder.positionOffset = moduleConstants.ANGLE_OFFSET.degrees
         driveEncoder.positionConversionFactor =
                 SwerveDriveConstants.DriveMotor.POSITION_CONVERSION_FACTOR_METERS_PER_ROTATION
         driveEncoder.velocityConversionFactor =
@@ -45,8 +45,8 @@ class IntakeSubsystemIOSparkMax() :IntakeSubsystemIO {
         angleEncoder.positionConversionFactor =
                 SwerveDriveConstants.AngleMotor.POSITION_CONVERSION_FACTOR_DEGREES_PER_ROTATION
 
-        driveMotor.inverted = ModuleConstants.DRIVE_MOTOR_REVERSED
-        angleMotor.inverted = ModuleConstants.ANGLE_MOTOR_REVERSED
+        driveMotor.inverted = moduleConstants.DRIVE_MOTOR_REVERSED
+        angleMotor.inverted = moduleConstants.ANGLE_MOTOR_REVERSED
 
         driveMotor.setOpenLoopRampRate(SwerveDriveConstants.DrivetrainConsts.OPEN_LOOP_RAMP_RATE_SECONDS)
         angleMotor.setOpenLoopRampRate(SwerveDriveConstants.DrivetrainConsts.OPEN_LOOP_RAMP_RATE_SECONDS)
@@ -57,17 +57,13 @@ class IntakeSubsystemIOSparkMax() :IntakeSubsystemIO {
     }
 
     override fun updateInputs(inputs: ModuleIOInputs) {
-        inputs.drivePositionMeters =
-                -driveEncoder.position
-        inputs.driveVelocityMetersPerSec =
-                -driveEncoder.velocity
+        inputs.drivePositionMeters = -driveEncoder.position
+        inputs.driveVelocityMetersPerSec = -driveEncoder.velocity
         inputs.driveAppliedVolts = driveMotor.appliedOutput * driveMotor.busVoltage
         inputs.driveCurrentAmps = doubleArrayOf(driveMotor.outputCurrent)
 
-        inputs.turnAbsolutePosition =
-                ((absoluteEncoder.absolutePosition * 360.0) + ModuleConstants.ANGLE_OFFSET.degrees).rotation2dFromDeg()
-        inputs.turnPosition =
-                ((-inputs.turnAbsolutePosition.degrees).IEEErem(360.0).rotation2dFromDeg())
+        inputs.turnAbsolutePosition = ((absoluteEncoder.absolutePosition * 360.0) + moduleConstants.ANGLE_OFFSET.degrees).rotation2dFromDeg()
+        inputs.turnPosition = ((-inputs.turnAbsolutePosition.degrees).IEEErem(360.0).rotation2dFromDeg())
         inputs.turnVelocityRadPerSec = (
                 Units.rotationsPerMinuteToRadiansPerSecond(angleEncoder.velocity)
                         / TURN_GEAR_RATIO)
@@ -75,24 +71,25 @@ class IntakeSubsystemIOSparkMax() :IntakeSubsystemIO {
         inputs.turnCurrentAmps = doubleArrayOf(angleMotor.outputCurrent)
     }
 
-    override fun setDriveVoltage(volts: Double) {
+    // TODO: REDO THIS
+    public fun setDriveVoltage(volts: Double) {
         driveMotor.setVoltage(volts)
     }
 
-    override fun setTurnVoltage(volts: Double) {
+    public fun setTurnVoltage(volts: Double) {
         angleMotor.setVoltage(volts)
     }
 
-    override fun setDriveBrakeMode(enable: Boolean) {
+    public fun setDriveBrakeMode(enable: Boolean) {
         driveMotor.setIdleMode(if (enable) IdleMode.kBrake else IdleMode.kCoast)
     }
 
-    override fun setTurnBrakeMode(enable: Boolean) {
+    public fun setTurnBrakeMode(enable: Boolean) {
         angleMotor.setIdleMode(if (enable) IdleMode.kBrake else IdleMode.kCoast)
     }
 
-    override fun reset() {
+    public fun reset() {
         driveEncoder.position = 0.0
-        angleEncoder.position = ((absoluteEncoder.absolutePosition * 360.0) + ModuleConstants.ANGLE_OFFSET.degrees)
+        angleEncoder.position = ((absoluteEncoder.absolutePosition * 360.0) + moduleConstants.ANGLE_OFFSET.degrees)
     }
 }
