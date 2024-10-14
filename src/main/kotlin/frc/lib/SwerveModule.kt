@@ -14,7 +14,7 @@ Props: drive motor, drive encoder, angle motor, angle encoder, absolute encoder
 Get: Cancoder measurement, Module state(velocity) and position
 Set: Module state
  */
-class SwerveModule(val io: SwerveModuleIO, val index:Int) {
+class SwerveModule(val io: , val index:Int) {
     private val inputs = ModuleIOInputsAutoLogged()
     private val ShuffleboardTab = Shuffleboard.getTab("Swerve Module " + index)
     val setPointEntry: GenericEntry = ShuffleboardTab.add("Setpoint", 0.0).withWidget(BuiltInWidgets.kGyro).entry

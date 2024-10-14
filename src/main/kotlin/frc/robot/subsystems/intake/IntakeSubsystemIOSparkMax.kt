@@ -22,7 +22,7 @@ class IntakeSubsystemIOSparkMax(override val turnPIDController: PIDController) :
 
 
     override fun updateInputs(inputs: IntakeSubsystemIO.IntakeIOInputs) {
-        
+
     }
 
     override fun reset() {

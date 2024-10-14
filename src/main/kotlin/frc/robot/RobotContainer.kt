@@ -13,6 +13,7 @@ import frc.lib.*
 import frc.robot.commands.*
 import frc.robot.subsystems.*
 import frc.robot.subsystems.intake.*
+import frc.robot.subsystems.shooter.ShooterSubsystem
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.File
