@@ -13,15 +13,14 @@ import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
-import frc.lib.SwerveModuleIO.ModuleIOInputs
 import frc.lib.*
 import kotlin.math.IEEErem
+import frc.robot.subsystems.intake.IntakeSubsystemIO.IntakeIOInputs
 
 
-class IntakeSubsystemIOSparkMax(override val turnPIDController: PIDController) : IntakeSubsystemIO {
-
-
-    override fun updateInputs(inputs: IntakeSubsystemIO.IntakeIOInputs) {
+class IntakeSubsystemIOSparkMax(moduleConstants: IntakeSubsystemConstants.ModuleConstants) : IntakeSubsystemIO {
+    override val turnPIDController: PIDController = moduleConstants.PID_CONTROLLER
+    override fun updateInputs(inputs: IntakeIOInputs) {
 
     }
 
