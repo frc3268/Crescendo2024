@@ -11,7 +11,8 @@ import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.lib.*
 import frc.robot.commands.*
-import frc.robot.subsystems.*
+import frc.robot.subsystems.climber.LeftClimberSubsystem
+import frc.robot.subsystems.climber.RightClimberSubsystem
 import frc.robot.subsystems.intake.*
 import frc.robot.subsystems.shooter.ShooterSubsystem
 import kotlinx.serialization.json.Json

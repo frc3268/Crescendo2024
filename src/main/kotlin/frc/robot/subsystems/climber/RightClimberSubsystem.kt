@@ -1,4 +1,4 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.climber
 
 import com.revrobotics.*
 import edu.wpi.first.networktables.GenericEntry
@@ -8,21 +8,20 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj2.command.*
 import frc.lib.Motor
 
-class LeftClimberSubsystem: SubsystemBase(){
-    val motor = Motor(14)
+class RightClimberSubsystem(): SubsystemBase(){
+    val motor = Motor(15)
     val encoder: RelativeEncoder = motor.encoder
     val troubleShootingTab: ShuffleboardTab = Shuffleboard.getTab("Troubleshooting")
-    val booleanBoxDangerMode: GenericEntry = troubleShootingTab.add("L DGo", false)
+    val booleanBoxDangerMode: GenericEntry = troubleShootingTab.add("R d", false)
             .withWidget(BuiltInWidgets.kToggleSwitch)
-        .withPosition(5, 0)
+        .withPosition(6, 0)
             .entry
 
     init {
         motor.controller.inverted = true
         // TODO test if this is needed
         //rightEncoder.inverted = true
-        
-        encoder.positionConversionFactor = 1.0 / 104
+        encoder.positionConversionFactor = 1.0/224.0
         encoder.position = 0.0
     }
 
@@ -37,7 +36,7 @@ class LeftClimberSubsystem: SubsystemBase(){
             .andThen(runOnce { motor.stop() })
 
     fun up(): Command =
-        run { motor.setPercentOutput(1.0) }
+        run { motor.setPercentOutput(0.7) }
             .until { encoder.position > 0.9 }
             .andThen(runOnce { motor.stop() })
 
@@ -45,17 +44,19 @@ class LeftClimberSubsystem: SubsystemBase(){
         runOnce { encoder.position = 0.0 }
 
     fun testup():Command =
-        runOnce { motor.setPercentOutput(0.2) }
+        run { motor.setPercentOutput(0.2) }
 
     fun testdown():Command =
-        runOnce { motor.setPercentOutput(-0.2) }
+        run { motor.setPercentOutput(-0.2) }
 
     fun stop(): Command =
         runOnce { motor.setPercentOutput(0.0) }
 
     override fun periodic() {
-        System.out.println("Left climber: " + encoder.position)
-        if(encoder.position !in -0.1..2.0 && !booleanBoxDangerMode.getBoolean(false)){
+        System.out.println("Right climber: " + encoder.position)
+
+
+        if(encoder.position !in -0.1..1.1 && !booleanBoxDangerMode.getBoolean(false)){
             stop().schedule()
         }
     }
